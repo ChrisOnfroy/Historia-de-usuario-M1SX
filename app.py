@@ -9,8 +9,8 @@ def menu():
             menu = int(input("""
             Please enter a digit number (1-4) :
             1. Add product
-            2. Show producto
-            3. Calculate Estadistics
+            2. Show product
+            3. Calculate statistics
             4. Exit
             Enter →  """))
             validationNum(menu)
