@@ -16,3 +16,9 @@ def validationNum(num):
     else:
         print("")
         print("Error: the price to product is only positive")
+        
+def validateEmtpyDoc(archive):
+    # Verificar si el archivo está vacío para escribir el encabezado
+        archive.seek(0, 2)  
+        if archive.tell() == 0: 
+            print("Error Archivo vacio.")

@@ -43,30 +43,38 @@ def addProduct():
     
     inventory.append(product)
     
-    with open("v3/inventory/inventory.csv", mode="a", newline='', encoding='utf-8') as archive:
+    with open("inventory.csv", mode="a", newline='', encoding='utf-8') as archive:
         
         writer = csv.writer(archive)
-                
+        
         # Verificar si el archivo está vacío para escribir el encabezado
         archive.seek(0, 2)  
-        if archive.tell() == 0:  # Si el archivo está vacío
+        if archive.tell() == 0: 
             writer.writerow(["name", "price", "quantity"])
+
+        data = list(product.items())
+        
+        # Escribir el nuevo producto
+        writer.writerow([data[0][1], data[1][1], data[2][1]])
             
-        for product in inventory:
-            data = list(product.items())
-            # Escribir el nuevo producto
-            writer.writerow([data[0][1], data[1][1], data[2][1]])
-            
-            print(f"Product '{nameProduct}' added successfully!")
+        print(f"Product '{nameProduct}' added successfully!")
 
 #This feature helps us show the user all the products stored in inventory.
 def showInventory():
-    
-    #This loop allows us to access the items in the inventory, add them to a list, and then print each one
-    for product in inventory:
-        data = list(product.items())
+    with open("inventory.csv", mode="r") as archive:
         print("")
-        print(f"Product: {data[0][1]} | Price: {data[1][1]} | Quantity: {data[2][1]}")
+        lines = archive.readlines()
+
+        for i, line in enumerate(lines[1:], 1):  # Saltar encabezado
+            data = line.strip().split(',')
+            if len(data) >= 3:
+                nombre = data[0]
+                precio = float(data[1])
+                cantidad = int(data[2])
+                    
+                print(f"{i:<4} {nombre:<25} ${precio:<11.2f} {cantidad:<10}")
+        
+
         
         
 #This feature helps us calculate all the data for each product and how many there are.
