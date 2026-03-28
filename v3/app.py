@@ -1,5 +1,6 @@
 from services import *
 from validations import *
+from archives import *
  
 #This function, called “menu,” launches the program
 def menu():
@@ -32,9 +33,9 @@ def menu():
             elif menu == 6:
                 calculateStatistics()
             elif menu == 7:
-                print("Here you can Upload CSV")
+                save_inventory()
             elif menu == 8:
-                print("Here you can charge CSV local")
+                load_inventory()
             elif menu == 9:
                 isMenu = False
             else:

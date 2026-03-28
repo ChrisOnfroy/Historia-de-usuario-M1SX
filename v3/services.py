@@ -1,10 +1,7 @@
 from validations import *
 from functions import *
-import csv as csv
 
 inventory = []
-
-
 
 #The `addproduct` feature allows us to add products and save them in a dictionary stored in a list.
 def addProduct():
@@ -43,127 +40,109 @@ def addProduct():
     
     inventory.append(product)
     
-    with open("inventory.csv", mode="a", newline='', encoding='utf-8') as archive:
-        
-        writer = csv.writer(archive)
-        
-        # Verificar si el archivo está vacío para escribir el encabezado
-        archive.seek(0, 2)  
-        if archive.tell() == 0: 
-            writer.writerow(["name", "price", "quantity"])
-
-        data = list(product.items())
-        
-        # Escribir el nuevo producto
-        writer.writerow([data[0][1], data[1][1], data[2][1]])
 
 
 #This feature helps us show the user all the products stored in inventory.
 def showInventory():
-    with open("inventory.csv", mode="r") as archive:
+    
+    
+    #This loop allows us to access the items in the inventory, add them to a list, and then print each one
+    for product in inventory:
+        data = list(product.items())
         print("")
-        lines = archive.readlines()
-
-        for i, line in enumerate(lines[1:], 1):  # Saltar encabezado
-            data = line.strip().split(',')
-            if len(data) >= 3:
-                nombre = data[0]
-                precio = float(data[1])
-                cantidad = int(data[2])
-                    
-                print(f"{i:<4} {nombre:<25} ${precio:<11.2f} {cantidad:<10}")
+        print(f"Product: {data[0][1]} | Price: {data[1][1]} | Quantity: {data[2][1]}")
         
 def searchProduct():
-    with open("inventory.csv", mode="r") as archive:
-        is_true = True
-        
-        while is_true:
-            
-            search = input("Enter name product: ").lower().strip()
-            lines = archive.readlines()
-            exist = False
-            for i, line in enumerate(lines[1:], 1):
-                
-                data = line.strip().split(',')
-                
-                if data[0] == search:
-                    
-                    name = data[0]
-                    price = float(data[1])
-                    quantity = int(data[2])
-                    
-                    print("")
-                    print(f"{i:<4} {name:<25} ${price:<11.2f} {quantity:<10}")
-                    
-                    exist = True
-                    return False
-                    
-            if not exist:
-                print("Product name not found.")
-                return False
+    search = input("Enter name product: ").lower().strip()
+    exist = False
+
+    for product in inventory:
+        if product["name"] == search:
+            print(f"Product: {product['name']} | Price: {product['price']} | Quantity: {product['quantity']}")
+            exist = True
+            return True  # Retornar True si se encontró
+    
+    if not exist:
+        print("Product name not found.")
+        return False  # Retornar False si no se encontró
 
 def UpdateProduct():
     
-    filename = "inventory.csv"
-    # Primero leer todo el contenido
-    try:
-        with open(filename, mode="r") as archive:
-            lines = archive.readlines()
-    except FileNotFoundError:
-        print("Inventory file not found.")
-        return False
-    search = input("Enter product name: ").lower().strip()
-    found = False
-    updated_lines = []
-    # Procesar cada línea
-    for line in lines:
-        data = line.strip().split(',')
-        
-        # Si es la primera línea (encabezado) o no coincide la búsqueda
-        if lines.index(line) == 0 or data[0].lower() != search:
-            updated_lines.append(line)
-        else:
-            # Encontramos el producto a actualizar
-            found = True
-            print(f"Updating product: {data[0]}")
+    search = input("Enter name product: ").lower().strip()
+    exist = False
+
+    for product in inventory:
+        if product["name"] == search:  # Acceso directo al diccionario
+            print(f"\nCurrent product: {product['name']} - ${product['price']} - {product['quantity']} units")
             
-            # Obtener nuevos valores
-            new_name = input("Enter new name: ").strip()
-            new_price = float(input("Enter new price: "))
-            new_quantity = int(input("Enter new quantity: "))
+            # Obtener nuevos valores con validaciones similares a addProduct()
+            new_name = input("Write new name: ").strip().lower()
+            new_price = float(input("Write new price: "))
+            new_quantity = int(input("Write new quantity: "))
             
-            # Crear línea actualizada
-            updated_line = f"{new_name},{new_price},{new_quantity}\n"
-            updated_lines.append(updated_line)
+            # Actualizar el diccionario original
+            product["name"] = new_name
+            product["price"] = new_price
+            product["quantity"] = new_quantity
+            
+            exist = True
             print("Product updated successfully!")
-            
-    if not found:
+            return True  # Retornar True indicando éxito
+    
+    if not exist:
         print("Product name not found.")
         return False
-    # Escribir todo el contenido actualizado
-    with open(filename, "w") as archive:
-        archive.writelines(updated_lines)
+
     
-    return True
 def deleteProduct():
-    print("")
+    search = input("Enter name product to delete: ").lower().strip()
+    exist = False
+
+    for i, product in enumerate(inventory):
+        if product["name"] == search:
+            print(f"\nProduct found: {product['name']} | Price: {product['price']} | Quantity: {product['quantity']}")
+            
+            confirm = input("Are you sure you want to delete this product? (y/n): ").lower().strip()
+            
+            if confirm == 'y':
+                deleted = inventory.pop(i)
+                print(f"\nProduct '{deleted['name']}' has been deleted successfully!")
+                return True
+            else:
+                print("Deletion cancelled.")
+                return False
+    
+    if not exist:
+        print("Product name not found.")
+        return False
 #This feature helps us calculate all the data for each product and how many there are.
 def calculateStatistics():
-    totalValuesInventory = 0
-    with open("inventory.csv", mode="r") as archive:
-        lines = archive.readlines()
-        
-        for i, line in enumerate(lines[1:], 1):
-            
-            data = line.strip().split(',')
-            
-            price = float(data[1])
-            quantity = int(data[2])
-            
-            totalValuesInventory += calculateTotalProduct(price, quantity)
-            i += 1
+    
+    print("\n" + "="*50)
+    print("INVENTORY STATISTICS")
+    print("="*50)
+    
+    if not inventory:
+        print("Inventory is empty. No statistics available.")
+        return False
 
-    print(f"""
-    The total values is: {totalValuesInventory}
-    the Quantity total the produtcs is: {i}
-    """)
+    unidades_totales = sum(product["quantity"] for product in inventory)
+    
+    valor_total = sum(product["price"] * product["quantity"] for product in inventory)
+
+    producto_mas_caro = max(inventory, key=lambda x: x["price"])
+    
+    producto_mayor_stock = max(inventory, key=lambda x: x["quantity"])
+    
+    # Mostrar resultados
+    print(f"\n TOTAL UNITS: {unidades_totales} units")
+    print(f" TOTAL VALUE: ${valor_total}")
+    print(f"\n MOST EXPENSIVE PRODUCT:")
+    print(f"   • Name: {producto_mas_caro['name']}")
+    print(f"   • Price: ${producto_mas_caro['price']}")
+    print(f"\n HIGHEST STOCK PRODUCT:")
+    print(f"   • Name: {producto_mayor_stock['name']}")
+    print(f"   • Quantity: {producto_mayor_stock['quantity']} units")
+    
+    return True
+    
